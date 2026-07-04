@@ -1,0 +1,9 @@
+misconfigurations:
+  - id: AVD-AZU-0041
+    statement: >-
+      Limiting the API server to specific IP ranges is caller topology, not something a
+      general-purpose module can hardcode: the allowed CIDRs depend on where your operators and
+      CI reach the cluster from. The module exposes api_server_authorized_ip_ranges for exactly
+      this, and private_cluster_enabled removes the public endpoint entirely; the examples leave
+      the API server open only so they can be applied from ephemeral CI runners. Set one of those
+      inputs for any real cluster.
