@@ -56,7 +56,7 @@ variable "azure_policy_enabled" {
 # Opt-in add-ons: each is a simple map/object, kept trivial to enable per the module's
 # quick-start-easy ethos. These are separate provider resources composed onto the cluster.
 variable "cluster_extensions" {
-  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional."
+  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional. Requires the Microsoft.KubernetesConfiguration resource provider registered on the subscription."
   type = map(object({
     extension_type                   = string
     version                          = optional(string)
