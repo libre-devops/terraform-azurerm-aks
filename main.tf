@@ -214,6 +214,16 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   }
 }
 
+# Attach ACRs: grant the kubelet identity AcrPull so nodes can pull images without a secret.
+resource "azurerm_role_assignment" "acr_pull" {
+  for_each = var.attached_acr_ids
+
+  scope                            = each.value
+  role_definition_name             = "AcrPull"
+  principal_id                     = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
+  skip_service_principal_aad_check = true
+}
+
 # Opt-in add-ons, composed onto the cluster.
 resource "azurerm_kubernetes_cluster_extension" "this" {
   for_each = var.cluster_extensions

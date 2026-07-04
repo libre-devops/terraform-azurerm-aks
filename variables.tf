@@ -4,6 +4,16 @@ variable "api_server_authorized_ip_ranges" {
   default     = null
 }
 
+variable "attached_acr_ids" {
+  description = <<-DESC
+    Azure Container Registry ids to attach to the cluster. For each, the module grants the
+    cluster's kubelet identity the AcrPull role on the registry, so nodes can pull images without
+    a pull secret. This is the Terraform equivalent of `az aks update --attach-acr`.
+  DESC
+  type        = set(string)
+  default     = []
+}
+
 variable "auto_scaler_profile" {
   description = "Cluster autoscaler tuning (only meaningful when a node pool has auto_scaling_enabled). Null uses AKS defaults."
   type = object({

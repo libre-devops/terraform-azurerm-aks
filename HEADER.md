@@ -53,6 +53,9 @@ example the local account off with no Azure AD).
   is top-level (no tangled map-of-clusters); additional user node pools are a `node_pools` map.
   Keep the system pool for system pods with `only_critical_addons_enabled` and put workloads on a
   user pool.
+- **Attach your registries.** Pass `attached_acr_ids` and the module grants the kubelet identity
+  `AcrPull` on each, so nodes pull images without a pull secret (the Terraform equivalent of
+  `az aks update --attach-acr`). It composes directly with `libre-devops/azure-container-registry`.
 - **Secure defaults, security add-ons one line away.** `api_server_authorized_ip_ranges` locks
   the API server, `private_cluster_enabled` removes the public endpoint, and
   `microsoft_defender_log_analytics_workspace_id` turns on Defender for Containers. Workload

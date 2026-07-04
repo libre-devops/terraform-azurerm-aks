@@ -4,7 +4,8 @@
 mock_provider "azurerm" {
   mock_resource "azurerm_kubernetes_cluster" {
     defaults = {
-      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-ldo-uks-tst-001/providers/Microsoft.ContainerService/managedClusters/aks-mock"
+      id               = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-ldo-uks-tst-001/providers/Microsoft.ContainerService/managedClusters/aks-mock"
+      kubelet_identity = [{ object_id = "44444444-4444-4444-4444-444444444444" }]
     }
   }
 

@@ -53,6 +53,9 @@ example the local account off with no Azure AD).
   is top-level (no tangled map-of-clusters); additional user node pools are a `node_pools` map.
   Keep the system pool for system pods with `only_critical_addons_enabled` and put workloads on a
   user pool.
+- **Attach your registries.** Pass `attached_acr_ids` and the module grants the kubelet identity
+  `AcrPull` on each, so nodes pull images without a pull secret (the Terraform equivalent of
+  `az aks update --attach-acr`). It composes directly with `libre-devops/azure-container-registry`.
 - **Secure defaults, security add-ons one line away.** `api_server_authorized_ip_ranges` locks
   the API server, `private_cluster_enabled` removes the public endpoint, and
   `microsoft_defender_log_analytics_workspace_id` turns on Defender for Containers. Workload
@@ -101,6 +104,7 @@ No modules.
 | [azurerm_kubernetes_cluster_node_pool.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
 | [azurerm_kubernetes_cluster_trusted_access_role_binding.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_trusted_access_role_binding) | resource |
 | [azurerm_kubernetes_flux_configuration.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_flux_configuration) | resource |
+| [azurerm_role_assignment.acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 
 ## Inputs
@@ -108,6 +112,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_api_server_authorized_ip_ranges"></a> [api\_server\_authorized\_ip\_ranges](#input\_api\_server\_authorized\_ip\_ranges) | CIDRs allowed to reach the public API server (ignored for private clusters). Restricting this is a strong security control. | `list(string)` | `null` | no |
+| <a name="input_attached_acr_ids"></a> [attached\_acr\_ids](#input\_attached\_acr\_ids) | Azure Container Registry ids to attach to the cluster. For each, the module grants the<br/>cluster's kubelet identity the AcrPull role on the registry, so nodes can pull images without<br/>a pull secret. This is the Terraform equivalent of `az aks update --attach-acr`. | `set(string)` | `[]` | no |
 | <a name="input_auto_scaler_profile"></a> [auto\_scaler\_profile](#input\_auto\_scaler\_profile) | Cluster autoscaler tuning (only meaningful when a node pool has auto\_scaling\_enabled). Null uses AKS defaults. | <pre>object({<br/>    balance_similar_node_groups      = optional(bool)<br/>    expander                         = optional(string)<br/>    max_graceful_termination_sec     = optional(string)<br/>    scale_down_delay_after_add       = optional(string)<br/>    scale_down_unneeded              = optional(string)<br/>    scale_down_utilization_threshold = optional(string)<br/>    scan_interval                    = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_automatic_upgrade_channel"></a> [automatic\_upgrade\_channel](#input\_automatic\_upgrade\_channel) | Automatic Kubernetes upgrade channel: patch, rapid, stable, or node-image. | `string` | `null` | no |
 | <a name="input_azure_active_directory_rbac"></a> [azure\_active\_directory\_rbac](#input\_azure\_active\_directory\_rbac) | Azure AD integration for Kubernetes RBAC. azure\_rbac\_enabled uses Azure RBAC for cluster authorization; admin\_group\_object\_ids grant cluster-admin to AAD groups. Enabled by default for a secure posture. | <pre>object({<br/>    enabled                = optional(bool, true)<br/>    azure_rbac_enabled     = optional(bool, true)<br/>    admin_group_object_ids = optional(list(string))<br/>    tenant_id              = optional(string)<br/>  })</pre> | `{}` | no |
