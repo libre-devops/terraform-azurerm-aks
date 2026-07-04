@@ -141,11 +141,14 @@ module "aks" {
     utc_offset  = "+00:00"
   }
 
-  # The Flux (GitOps) controllers. A flux_configuration pointing at your repo is exposed by the
-  # module but needs a real repo, so it is left out of this smoke test.
-  cluster_extensions = {
-    "flux" = { extension_type = "microsoft.flux" }
-  }
+  # The Flux (GitOps) controllers. microsoft.flux installs several controllers and regularly exceeds
+  # the provider's 30 minute default create timeout on a fresh cluster (surfacing as "context
+  # deadline exceeded"), so it is kept out of this fast smoke test. To exercise it, uncomment and
+  # give it headroom via create_timeout (a flux_configuration pointing at a real repo is also
+  # exposed by the module):
+  # cluster_extensions = {
+  #   "flux" = { extension_type = "microsoft.flux", create_timeout = "60m" }
+  # }
 
   deployment_safeguard = {
     level = "Warn"

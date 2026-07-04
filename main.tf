@@ -239,6 +239,14 @@ resource "azurerm_kubernetes_cluster_extension" "this" {
   target_namespace                 = each.value.target_namespace
   configuration_settings           = each.value.configuration_settings
   configuration_protected_settings = each.value.configuration_protected_settings
+
+  dynamic "timeouts" {
+    for_each = each.value.create_timeout != null ? [each.value.create_timeout] : []
+
+    content {
+      create = timeouts.value
+    }
+  }
 }
 
 resource "azurerm_kubernetes_cluster_trusted_access_role_binding" "this" {
