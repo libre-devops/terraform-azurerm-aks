@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   workload_identity_enabled         = var.workload_identity_enabled
   azure_policy_enabled              = var.azure_policy_enabled
   image_cleaner_enabled             = var.image_cleaner_enabled
-  image_cleaner_interval_hours      = var.image_cleaner_interval_hours
+  image_cleaner_interval_hours      = var.image_cleaner_enabled ? coalesce(var.image_cleaner_interval_hours, 168) : null
   cost_analysis_enabled             = var.cost_analysis_enabled
   automatic_upgrade_channel         = var.automatic_upgrade_channel
   node_os_upgrade_channel           = var.node_os_upgrade_channel
