@@ -148,7 +148,7 @@ module "aks" {
   }
 
   deployment_safeguard = {
-    level = "Warning"
+    level = "Warn"
   }
 }
 

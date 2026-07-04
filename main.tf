@@ -215,10 +215,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
 }
 
 # Attach ACRs: grant the kubelet identity AcrPull so nodes can pull images without a secret.
+# Keyed by list position (count), not the id, so a registry id that is unknown at plan (created
+# in the same configuration) is still valid.
 resource "azurerm_role_assignment" "acr_pull" {
-  for_each = var.attached_acr_ids
+  count = length(var.attached_acr_ids)
 
-  scope                            = each.value
+  scope                            = var.attached_acr_ids[count.index]
   role_definition_name             = "AcrPull"
   principal_id                     = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true

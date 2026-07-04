@@ -8,9 +8,11 @@ variable "attached_acr_ids" {
   description = <<-DESC
     Azure Container Registry ids to attach to the cluster. For each, the module grants the
     cluster's kubelet identity the AcrPull role on the registry, so nodes can pull images without
-    a pull secret. This is the Terraform equivalent of `az aks update --attach-acr`.
+    a pull secret. This is the Terraform equivalent of `az aks update --attach-acr`. A list (not a
+    set) so a registry id that is only known after apply, such as one created in the same
+    configuration, is still valid: the grants are keyed by list position, which is known at plan.
   DESC
-  type        = set(string)
+  type        = list(string)
   default     = []
 }
 
@@ -112,7 +114,7 @@ variable "default_node_pool" {
 }
 
 variable "deployment_safeguard" {
-  description = "AKS deployment safeguards (best-practice enforcement on workloads). Set level (Warning or Enforcement) to enable."
+  description = "AKS deployment safeguards (best-practice enforcement on workloads). Set level (Warn or Enforce) to enable."
   type = object({
     level               = string
     excluded_namespaces = optional(list(string))
