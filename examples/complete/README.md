@@ -156,8 +156,13 @@ module "aks" {
     }
   }
 
+  # flux-system is excluded so the safeguards and Azure Policy machinery never interferes with the
+  # Flux controllers' Helm install: a previous run of this stack failed extension creation with
+  # "Unable to create/update Kubernetes resources for the extension due to a policy restriction",
+  # and excluding the extension's namespace is Microsoft's documented remediation.
   deployment_safeguard = {
-    level = "Warn"
+    level               = "Warn"
+    excluded_namespaces = ["flux-system"]
   }
 }
 
