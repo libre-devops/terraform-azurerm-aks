@@ -56,7 +56,7 @@ variable "azure_policy_enabled" {
 # Opt-in add-ons: each is a simple map/object, kept trivial to enable per the module's
 # quick-start-easy ethos. These are separate provider resources composed onto the cluster.
 variable "cluster_extensions" {
-  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional. Requires the Microsoft.KubernetesConfiguration resource provider registered on the subscription, and at least one node pool the extension pods can schedule on: extension pods carry no custom tolerations, so a cluster where every pool is tainted (including critical-addons-only system pools) leaves them Pending until the create polls out with 'context deadline exceeded'. create_timeout overrides the provider's 30 minute default for genuinely slow installs."
+  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional. Requires the Microsoft.KubernetesConfiguration resource provider registered on the subscription, and at least one untainted Linux node pool the extension pods can schedule on (they carry no custom tolerations; a precondition enforces this). The module installs extensions only after all node pools exist, because Azure assigns each extension's managed identity to the VMSSes present at install time and a pool racing the install misses the assignment, leaving the extension agent failing IMDS auth until the create times out. create_timeout overrides the provider's 30 minute default for genuinely slow installs."
   type = map(object({
     extension_type                   = string
     version                          = optional(string)

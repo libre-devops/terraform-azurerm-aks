@@ -155,3 +155,27 @@ run "rejects_workload_identity_without_oidc" {
 
   expect_failures = [azurerm_kubernetes_cluster.this]
 }
+
+# Extensions with nowhere to schedule: critical-addons-only default pool and every user pool
+# tainted means the extension pods (which have no tolerations) can never start.
+run "rejects_extensions_without_schedulable_pool" {
+  command = plan
+
+  variables {
+    default_node_pool = {
+      only_critical_addons_enabled = true
+    }
+
+    node_pools = {
+      "workloads" = {
+        node_taints = ["workload=general:NoSchedule"]
+      }
+    }
+
+    cluster_extensions = {
+      "flux" = { extension_type = "microsoft.flux" }
+    }
+  }
+
+  expect_failures = [azurerm_kubernetes_cluster_extension.this]
+}

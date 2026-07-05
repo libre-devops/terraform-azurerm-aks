@@ -247,6 +247,31 @@ resource "azurerm_kubernetes_cluster_extension" "this" {
       create = timeouts.value
     }
   }
+
+  # Extensions must install after every node pool exists. Azure assigns the extension's managed
+  # identity to the node pool VMSSes present at install time; a pool created in parallel misses the
+  # assignment, and an extension agent scheduled onto it then fails IMDS auth ("Identity not found")
+  # forever, so the install never reports status and dies with "context deadline exceeded".
+  depends_on = [azurerm_kubernetes_cluster_node_pool.this]
+
+  lifecycle {
+    precondition {
+      # The extension's controllers carry no custom tolerations, so somewhere in the cluster there
+      # must be an untainted Linux pool for them: either the default pool without its critical
+      # addons taint, or an additional on-demand Linux pool with no taints (Spot pools carry an
+      # implicit spot taint).
+      condition = (
+        !coalesce(var.default_node_pool.only_critical_addons_enabled, false)
+        || anytrue([
+          for p in values(var.node_pools) :
+          length(coalesce(p.node_taints, [])) == 0
+          && coalesce(p.os_type, "Linux") == "Linux"
+          && coalesce(p.priority, "Regular") == "Regular"
+        ])
+      )
+      error_message = "cluster_extensions needs at least one schedulable Linux node pool: extension pods have no tolerations, so with only_critical_addons_enabled on the default pool there must be an untainted, non-Spot Linux pool in node_pools, or the extension install times out with its pods Pending."
+    }
+  }
 }
 
 resource "azurerm_kubernetes_cluster_trusted_access_role_binding" "this" {
