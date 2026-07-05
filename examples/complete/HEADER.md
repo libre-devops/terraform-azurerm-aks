@@ -14,6 +14,6 @@
 
 # Complete example
 
-A feature smoke test: an ACR created and attached, Container Insights and Defender, Azure Policy and deployment safeguards, the Key Vault CSI driver, workload identity, the image cleaner, an API-server IP allow-list, an auto-upgrade window, the Flux extension, and a tainted system pool alongside an autoscaling, labelled, tainted user pool.
+A feature smoke test: an ACR created and attached, Container Insights and Defender, Azure Policy and deployment safeguards, the Key Vault CSI driver, workload identity, the image cleaner, an API-server IP allow-list, an auto-upgrade window, the Flux extension, and a critical-addons system pool alongside an autoscaling, labelled user pool (untainted so the Flux controllers can schedule).
 
 [![Terraform Registry](https://img.shields.io/badge/registry-libre--devops-7B42BC?logo=terraform&logoColor=white)](https://registry.terraform.io/namespaces/libre-devops)

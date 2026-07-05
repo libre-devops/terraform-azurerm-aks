@@ -5,8 +5,8 @@
 # Vault CSI driver is on with rotation; workload identity and the OIDC issuer are enabled; the
 # image cleaner prunes stale images; the API server is locked to an IP allow-list; a scheduled
 # auto-upgrade window is set; the autoscaler is tuned; the Flux extension is installed; and a
-# tainted system pool sits alongside an autoscaling, labelled, tainted user pool. Applied then
-# destroyed in one CI run.
+# critical-addons system pool sits alongside an autoscaling, labelled user pool (left untainted
+# so the Flux controllers have a schedulable home). Applied then destroyed in one CI run.
 locals {
   location = lookup(var.regions, var.loc, "uksouth")
   rg_name  = "rg-${var.short}-${var.loc}-${terraform.workspace}-002"
@@ -80,6 +80,10 @@ module "aks" {
     only_critical_addons_enabled = true
   }
 
+  # No node_taints here (the input is supported, the mocked tests cover it): with the default pool
+  # reserved for critical addons, this pool is the only schedulable home for the microsoft.flux
+  # controllers below, and extension pods carry no custom tolerations. Tainting every pool leaves
+  # them Pending until the extension create times out.
   node_pools = {
     "workloads" = {
       vm_size              = "Standard_D2s_v6"
@@ -87,7 +91,6 @@ module "aks" {
       min_count            = 1
       max_count            = 3
       node_labels          = { "workload" = "general" }
-      node_taints          = ["workload=general:NoSchedule"]
     }
   }
 
@@ -117,14 +120,17 @@ module "aks" {
     utc_offset  = "+00:00"
   }
 
-  # The Flux (GitOps) controllers. microsoft.flux installs several controllers and regularly exceeds
-  # the provider's 30 minute default create timeout on a fresh cluster (surfacing as "context
-  # deadline exceeded"), so it is kept out of this fast smoke test. To exercise it, uncomment and
-  # give it headroom via create_timeout (a flux_configuration pointing at a real repo is also
-  # exposed by the module):
-  # cluster_extensions = {
-  #   "flux" = { extension_type = "microsoft.flux", create_timeout = "60m" }
-  # }
+  # The Flux (GitOps) controllers. microsoft.flux needs an untainted node to schedule its nine
+  # controllers on (see the workloads pool note above) plus the Microsoft.KubernetesConfiguration
+  # provider registered in the subscription; without a schedulable node the create polls until
+  # "context deadline exceeded". create_timeout gives a fresh cluster headroom over the provider's
+  # 30 minute default. A flux_configuration pointing at a real repo is also exposed by the module.
+  cluster_extensions = {
+    "flux" = {
+      extension_type = "microsoft.flux"
+      create_timeout = "60m"
+    }
+  }
 
   deployment_safeguard = {
     level = "Warn"

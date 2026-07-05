@@ -56,7 +56,7 @@ variable "azure_policy_enabled" {
 # Opt-in add-ons: each is a simple map/object, kept trivial to enable per the module's
 # quick-start-easy ethos. These are separate provider resources composed onto the cluster.
 variable "cluster_extensions" {
-  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional. Requires the Microsoft.KubernetesConfiguration resource provider registered on the subscription. create_timeout overrides the provider's 30 minute default (microsoft.flux installs several controllers and can exceed 30 minutes on a fresh cluster, surfacing as 'context deadline exceeded')."
+  description = "Cluster extensions (e.g. Flux, Dapr) keyed by name. extension_type is the platform type; configuration_settings/version are optional. Requires the Microsoft.KubernetesConfiguration resource provider registered on the subscription, and at least one node pool the extension pods can schedule on: extension pods carry no custom tolerations, so a cluster where every pool is tainted (including critical-addons-only system pools) leaves them Pending until the create polls out with 'context deadline exceeded'. create_timeout overrides the provider's 30 minute default for genuinely slow installs."
   type = map(object({
     extension_type                   = string
     version                          = optional(string)

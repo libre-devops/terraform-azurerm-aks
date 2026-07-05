@@ -72,6 +72,6 @@ example the local account off with no Azure AD).
 
 - [`examples/minimal`](./examples/minimal) - a single-node secure-default cluster, applied and
   destroyed in CI.
-- [`examples/complete`](./examples/complete) - a tainted system pool plus an autoscaling user
-  pool, Container Insights, the Key Vault CSI driver, workload identity, the image cleaner, and a
-  scheduled auto-upgrade window.
+- [`examples/complete`](./examples/complete) - a critical-addons system pool plus an autoscaling
+  user pool, the Flux extension, Container Insights, the Key Vault CSI driver, workload identity,
+  the image cleaner, and a scheduled auto-upgrade window.
